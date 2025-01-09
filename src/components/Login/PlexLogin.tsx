@@ -1,12 +1,11 @@
 import globalMessages from '@app/i18n/globalMessages';
+import defineMessages from '@app/utils/defineMessages';
 import PlexOAuth from '@app/utils/plex';
 import { ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
-import axios from 'axios';
-import type React from 'react';
 import { useEffect, useState } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 
-const messages = defineMessages({
+const messages = defineMessages('components.Login.signinwithplex', {
   signinwithplex: 'Sign in with Plex',
   signingin: 'Signing in…',
 });
@@ -37,9 +36,12 @@ const PlexLogin: React.FC<PlexLoginProps> = ({
     const login = async () => {
       if (setProcessing) setProcessing(true);
       try {
-        const response = await axios.post('/api/v1/auth/plex', { authToken });
+        const response = await fetch('/api/v1/auth/plex', {
+          method: 'POST',
+          body: JSON.stringify({ authToken }),
+        }).then((r) => r.json());
 
-        if (response.data?.id) {
+        if (response?.id) {
           onAuthenticated();
         }
       } catch (e) {

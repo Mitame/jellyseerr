@@ -3,13 +3,13 @@ import ErrorCallout from '@app/components/Login/ErrorCallout';
 import JellyfinLogin from '@app/components/Login/JellyfinLogin';
 import PlexLogin from '@app/components/Login/PlexLogin';
 import { UserType, useUser } from '@app/hooks/useUser';
+import defineMessages from '@app/utils/defineMessages';
 import { MediaServerType } from '@server/constants/server';
 import getConfig from 'next/config';
-import type React from 'react';
 import { useEffect, useState } from 'react';
-import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
-const messages = defineMessages({
+const messages = defineMessages('components.Setup', {
   welcome: 'Welcome to Jellyseerr',
   signinMessage: 'Get started by signing in',
   signinWithJellyfin: 'Use your {mediaServerName} account',

@@ -1,12 +1,10 @@
 import PopupWindow from '@app/utils/popupWindow';
-import axios from 'axios';
 
 export async function processCallback(params: URLSearchParams) {
-  return await axios
-    .get('/api/v1/auth/oidc-callback', { params })
-    .then((r) => ({
+  return await fetch(`/api/v1/auth/oidc-callback?${params}`)
+    .then(async (r) => ({
       type: 'success',
-      message: r.data,
+      message: await r.json(),
     }))
     .catch((e) => {
       if (e.response && e.response.data && e.response.data.message) {

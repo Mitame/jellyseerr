@@ -12,6 +12,7 @@ import type { Library } from '@server/lib/settings';
 import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import AsyncLock from '@server/utils/asyncLock';
+import { getHostname } from '@server/utils/getHostname';
 import { randomUUID as uuid } from 'crypto';
 import { uniqWith } from 'lodash';
 
@@ -83,13 +84,17 @@ class JellyfinScanner {
       }
 
       const has4k = metadata.MediaSources?.some((MediaSource) => {
-        return MediaSource.MediaStreams.some((MediaStream) => {
+        return MediaSource.MediaStreams.filter(
+          (MediaStream) => MediaStream.Type === 'Video'
+        ).some((MediaStream) => {
           return (MediaStream.Width ?? 0) > 2000;
         });
       });
 
       const hasOtherResolution = metadata.MediaSources?.some((MediaSource) => {
-        return MediaSource.MediaStreams.some((MediaStream) => {
+        return MediaSource.MediaStreams.filter(
+          (MediaStream) => MediaStream.Type === 'Video'
+        ).some((MediaStream) => {
           return (MediaStream.Width ?? 0) <= 2000;
         });
       });
@@ -591,7 +596,7 @@ class JellyfinScanner {
       }
 
       this.jfClient = new JellyfinAPI(
-        settings.jellyfin.hostname ?? '',
+        getHostname(),
         admin.jellyfinAuthToken,
         admin.jellyfinDeviceId
       );

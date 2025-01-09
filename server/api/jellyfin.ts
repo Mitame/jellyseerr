@@ -111,8 +111,6 @@ class JellyfinAPI extends ExternalAPI {
       {
         headers: {
           'X-Emby-Authorization': authHeaderVal,
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
         },
       }
     );
@@ -126,25 +124,33 @@ class JellyfinAPI extends ExternalAPI {
     Password?: string,
     ClientIP?: string
   ): Promise<JellyfinLoginResponse> {
-    try {
-      const headers = ClientIP
-        ? {
-            'X-Forwarded-For': ClientIP,
-          }
-        : {};
+    const authenticate = async (useHeaders: boolean) => {
+      const headers: { [key: string]: string } =
+        useHeaders && ClientIP ? { 'X-Forwarded-For': ClientIP } : {};
 
-      const authResponse = await this.post<JellyfinLoginResponse>(
+      return this.post<JellyfinLoginResponse>(
         '/Users/AuthenticateByName',
         {
-          Username: Username,
+          Username,
           Pw: Password,
         },
-        {
-          headers: headers,
-        }
+        {},
+        undefined,
+        { headers }
       );
+    };
 
-      return authResponse;
+    try {
+      return await authenticate(true);
+    } catch (e) {
+      logger.debug(`Failed to authenticate with headers: ${e.message}`, {
+        label: 'Jellyfin API',
+        ip: ClientIP,
+      });
+    }
+
+    try {
+      return await authenticate(false);
     } catch (e) {
       const status = e.response?.status;
 
@@ -176,6 +182,16 @@ class JellyfinAPI extends ExternalAPI {
   public setUserId(userId: string): void {
     this.userId = userId;
     return;
+  }
+
+  public async getSystemInfo(): Promise<any> {
+    try {
+      const systemInfoResponse = await this.get<any>('/System/Info');
+
+      return systemInfoResponse;
+    } catch (e) {
+      throw new ApiError(e.response?.status, ApiErrorCode.InvalidAuthToken);
+    }
   }
 
   public async getServerName(): Promise<string> {
@@ -280,7 +296,16 @@ class JellyfinAPI extends ExternalAPI {
   public async getLibraryContents(id: string): Promise<JellyfinLibraryItem[]> {
     try {
       const libraryItemsResponse = await this.get<any>(
-        `/Users/${this.userId}/Items?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Series,Movie,Others&Recursive=true&StartIndex=0&ParentId=${id}&collapseBoxSetItems=false`
+        `/Users/${this.userId}/Items`,
+        {
+          SortBy: 'SortName',
+          SortOrder: 'Ascending',
+          IncludeItemTypes: 'Series,Movie,Others',
+          Recursive: 'true',
+          StartIndex: '0',
+          ParentId: id,
+          collapseBoxSetItems: 'false',
+        }
       );
 
       return libraryItemsResponse.Items.filter(
@@ -299,7 +324,11 @@ class JellyfinAPI extends ExternalAPI {
   public async getRecentlyAdded(id: string): Promise<JellyfinLibraryItem[]> {
     try {
       const itemResponse = await this.get<any>(
-        `/Users/${this.userId}/Items/Latest?Limit=12&ParentId=${id}`
+        `/Users/${this.userId}/Items/Latest`,
+        {
+          Limit: '12',
+          ParentId: id,
+        }
       );
 
       return itemResponse;
@@ -358,7 +387,10 @@ class JellyfinAPI extends ExternalAPI {
   ): Promise<JellyfinLibraryItem[]> {
     try {
       const episodeResponse = await this.get<any>(
-        `/Shows/${seriesID}/Episodes?seasonId=${seasonID}`
+        `/Shows/${seriesID}/Episodes`,
+        {
+          seasonId: seasonID,
+        }
       );
 
       return episodeResponse.Items.filter(

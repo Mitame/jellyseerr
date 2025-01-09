@@ -6,18 +6,20 @@ import LanguagePicker from '@app/components/Layout/LanguagePicker';
 import ErrorCallout from '@app/components/Login/ErrorCallout';
 import useSettings from '@app/hooks/useSettings';
 import { useUser } from '@app/hooks/useUser';
+import defineMessages from '@app/utils/defineMessages';
 import { MediaServerType } from '@server/constants/server';
 import getConfig from 'next/config';
 import { useRouter } from 'next/dist/client/router';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import useSWR from 'swr';
 import JellyfinLogin from './JellyfinLogin';
 import LocalLogin from './LocalLogin';
 import OidcLogin from './OidcLogin';
 import PlexLogin from './PlexLogin';
 
-const messages = defineMessages({
+const messages = defineMessages('components.Login', {
   signin: 'Sign In',
   signinheader: 'Sign in to continue',
   useplexaccount: 'Use your Plex account',
@@ -115,8 +117,10 @@ const Login = () => {
         <LanguagePicker />
       </div>
       <div className="relative z-40 mt-10 flex flex-col items-center px-4 sm:mx-auto sm:w-full sm:max-w-md">
-        <img src="/logo_stacked.svg" className="mb-10 max-w-full" alt="Logo" />
-        <h2 className="mt-2 text-center text-3xl font-extrabold leading-9 text-gray-100">
+        <div className="relative h-48 w-full max-w-full">
+          <Image src="/logo_stacked.svg" alt="Logo" fill />
+        </div>
+        <h2 className="mt-12 text-center text-3xl font-extrabold leading-9 text-gray-100">
           {intl.formatMessage(messages.signinheader)}
         </h2>
       </div>

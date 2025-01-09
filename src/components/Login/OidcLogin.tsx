@@ -1,13 +1,13 @@
 import Button from '@app/components/Common/Button';
 import useSettings from '@app/hooks/useSettings';
 import globalMessages from '@app/i18n/globalMessages';
+import defineMessages from '@app/utils/defineMessages';
 import OIDCAuth from '@app/utils/oidc';
 import { ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
-import type React from 'react';
 import { useEffect } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 
-const messages = defineMessages({
+const messages = defineMessages('oidc', {
   signinwithoidc: 'Sign in with {OIDCProvider}',
   signingin: 'Signing in…',
   loginerror: 'Something went wrong while trying to sign in.',

@@ -1,6 +1,7 @@
 import Accordion from '@app/components/Common/Accordion';
 import Modal from '@app/components/Common/Modal';
 import globalMessages from '@app/i18n/globalMessages';
+import defineMessages from '@app/utils/defineMessages';
 import { Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
 import type { MainSettings } from '@server/lib/settings';
@@ -10,15 +11,10 @@ import {
   type FormikErrors,
   type FormikHelpers,
 } from 'formik';
-import {
-  defineMessages,
-  useIntl,
-  type IntlShape,
-  type MessageDescriptor,
-} from 'react-intl';
+import { useIntl, type IntlShape, type MessageDescriptor } from 'react-intl';
 import * as yup from 'yup';
 
-const messages = defineMessages({
+const messages = defineMessages('oidc2', {
   configureoidc: 'Configure OpenID Connect',
   oidcDomain: 'Issuer URL',
   oidcDomainTip: "The base URL of the identity provider's OIDC endpoint",
@@ -45,12 +41,10 @@ const messages = defineMessages({
     'only supported when OIDC is the exclusive login method.',
 });
 
-type OidcSettings = MainSettings['oidc'];
-
 interface OidcModalProps {
-  values: Partial<OidcSettings>;
-  errors?: FormikErrors<OidcSettings>;
-  setFieldValue: FormikHelpers<OidcSettings>['setFieldValue'];
+  values: Partial<MainSettings>;
+  errors?: FormikErrors<MainSettings>;
+  setFieldValue: FormikHelpers<MainSettings>['setFieldValue'];
   mediaServerName: string;
   onClose?: () => void;
   onOk?: () => void;
@@ -326,7 +320,7 @@ const OidcModal = ({
                           onChange={() => {
                             setFieldValue(
                               'oidc.matchJellyfinUsername',
-                              !values.matchJellyfinUsername
+                              !values.oidc?.matchJellyfinUsername
                             );
                           }}
                         />
@@ -350,7 +344,7 @@ const OidcModal = ({
                           onChange={() => {
                             setFieldValue(
                               'oidc.automaticLogin',
-                              !values.automaticLogin
+                              !values.oidc?.automaticLogin
                             );
                           }}
                         />
